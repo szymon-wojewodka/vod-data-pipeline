@@ -1,0 +1,12 @@
+USE ROLE SYSADMIN;
+USE DATABASE TMDB_PROJECT;
+USE SCHEMA RAW;
+
+CREATE OR REPLACE FILE FORMAT my_json_format
+  TYPE = JSON
+  STRIP_OUTER_ARRAY = TRUE;
+
+CREATE OR REPLACE STAGE tmdb_s3_stage
+  STORAGE_INTEGRATION = s3_tmdb_integration
+  URL = 's3://szymon-data-lake-tmdb-2026/raw/'
+  FILE_FORMAT = my_json_format;

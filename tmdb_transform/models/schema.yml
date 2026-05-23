@@ -1,17 +1,38 @@
 version: 2
 
 models:
-  - name: stg_movies
-    description: "Table containing basic data about 20 top rated movies on TMDB."
+  - name: dim_movies
+    description: "Movies dimension."
     columns:
       - name: movie_id
-        description: "Unique movie id."
+        description: "Primary key."
         tests:
           - unique
           - not_null
-      - name: title
-        description: "Movie title."
+
+  - name: dim_actors
+    description: "Actors dimension."
+    columns:
+      - name: actor_id
+        description: "Primary key."
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_movie_cast
+    description: "Movie cast facts."
+    columns:
+      - name: movie_id
+        description: "Movie FK."
         tests:
           - not_null
-      - name: rating
-        description: "Average viewer rating."
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_id
+      - name: actor_id
+        description: "Actor FK."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_actors')
+              field: actor_id

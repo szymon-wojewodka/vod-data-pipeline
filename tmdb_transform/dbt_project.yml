@@ -34,3 +34,6 @@ models:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
+on-run-start:
+  - "TRUNCATE TABLE TMDB_PROJECT.RAW.RAW_MOVIES;"
+  - "COPY INTO TMDB_PROJECT.RAW.RAW_MOVIES FROM @TMDB_S3_STAGE PATTERN='.*movies\\.json' FILE_FORMAT = (TYPE = JSON);"

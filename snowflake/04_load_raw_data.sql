@@ -1,0 +1,12 @@
+USE ROLE SYSADMIN;
+USE DATABASE TMDB_PROJECT;
+USE SCHEMA RAW;
+
+CREATE OR REPLACE TABLE raw_movies (
+    json_data VARIANT
+);
+
+COPY INTO raw_movies
+FROM @tmdb_s3_stage
+PATTERN='.*movies\.json' 
+ON_ERROR = 'CONTINUE';

@@ -2,6 +2,7 @@ import boto3
 import requests
 import os
 import json
+import time
 from datetime import datetime
 from typing import Dict, Any
 
@@ -11,18 +12,33 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
 def fetch_top_movies() -> Dict[str, Any]:
-
-    url = "https://api.themoviedb.org/3/movie/top_rated"
-
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {TMDB_TOKEN}"
     }
-
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
     
-    return response.json()
+    all_movies_with_details = []
+    
+    for page in range(1, 6):
+        url = f"https://api.themoviedb.org/3/movie/top_rated?language=en-US&page={page}"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        
+        movies = response.json().get('results', [])
+        
+        for movie in movies:
+            movie_id = movie['id']
+            detail_url = f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits"
+            
+            detail_response = requests.get(detail_url, headers=headers)
+            detail_response.raise_for_status()
+            
+            all_movies_with_details.append(detail_response.json())
+            
+            # Rate limiting so API doesn't block the script.
+            time.sleep(0.05)
+            
+    return {"results": all_movies_with_details}
 
 def upload_to_s3(data: Dict[str, Any]) -> None:
     s3_client = boto3.client(

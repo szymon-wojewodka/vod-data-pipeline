@@ -18,3 +18,4 @@ flattened_movies AS (
 )
 
 SELECT * FROM flattened_movies
+QUALIFY ROW_NUMBER() OVER (PARTITION BY movie_id ORDER BY popularity DESC) = 1
